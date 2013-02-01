@@ -50,6 +50,17 @@
      (ovs-vsctl -- --if-exists del-br ~bridge-name)
      (ovs-vsctl add-br ~bridge-name))))
 
+(defplan connect-host-interfaces
+  "Connect host interfaces to OVS bridge"
+  [bridge-config]
+  (let [bridge-name (:name bridge-config)
+        interfaces (:host-interfaces-to-connect bridge-config)]
+    (doseq [iface interfaces]
+      (actions/exec-checked-script
+       "Attch host interface to bridge"
+       (ovs-vsctl -- --if-exists del-port ~bridge-name ~iface)
+       (ovs-vsctl add-port ~bridge-name ~iface -- set interface priv0 type=internal)))))
+
 (defplan add-gre-port
   "Add a GRE port for a given bridge to a given remote ip."
   [bridge-name [gre-number gre-config]]
@@ -93,6 +104,7 @@
       (ensure-forwarding-on)
       (actions/exec-checked-script
        "Add iptable rules for forwarding"
+       ;; TODO: We need to check if rules already exist before adding them!
        (iptables -t nat -A POSTROUTING -o ~via -j MASQUERADE)
        (iptables -I INPUT 1 -i ~from -j ACCEPT)
        (iptables -A FORWARD -i ~from -s ~source -j ACCEPT)))))
@@ -101,6 +113,7 @@
   "Perform all server side setup for a given OVS bridge."
   [bridge-config]
   (create-bridge bridge-config)
+  (connect-host-interfaces bridge-config)
   (create-gre-connections bridge-config)
   (setup-forwarding bridge-config))
 
