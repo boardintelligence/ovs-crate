@@ -6,7 +6,7 @@
             [pallet.utils :as utils]
             [pallet.crate :refer [defplan]]))
 
-(defplan install-ovs-packages
+(defplan install-packages
   "Install all OVS packages."
   []
   (actions/packages :aptitude ["openvswitch-brcompat" "openvswitch-common"
@@ -115,7 +115,7 @@
 (defplan setup-ovs
   "Install packages for OVS and configure networking."
   []
-  (install-ovs-packages)
+  (install-packages)
   (install-failsafe-conf)
   (remove-ebtables)
   (install-etc-network-interfaces)
