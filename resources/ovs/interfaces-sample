@@ -1,0 +1,19 @@
+### File provided by ovs-crate
+
+# Loopback device:
+auto lo
+iface lo inet loopback
+
+# device: eth0
+auto  eth0
+iface eth0 inet static
+  address 5.5.5.5
+  broadcast 5.5.5.255
+  netmask 255.255.255.0
+
+# device: priv0
+auto  priv0
+iface priv0 inet static
+  address   10.1.1.1
+  broadcast 10.1.1.255
+  netmask   255.255.255.0
