@@ -6,6 +6,15 @@
             [pallet.utils :as utils]
             [pallet.crate :refer [defplan]]))
 
+(defplan install-dpkg-settings
+  "We don't want questions asked during package install.
+   LXC conf file we transfer ends up arriving before the package is installed,
+   hence we need this."
+  []
+  (actions/remote-file "/etc/apt/apt.conf.d/local"
+                       :local-file (utils/resource-path "ovs/dpkg-options")
+                       :literal true))
+
 (defplan install-packages
   "Install all OVS packages."
   []
@@ -128,6 +137,7 @@
 (defplan setup-ovs
   "Install packages for OVS and configure networking."
   []
+  (install-dpkg-settings)
   (install-packages)
   (install-failsafe-conf)
   (remove-ebtables)
