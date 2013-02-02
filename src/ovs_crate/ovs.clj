@@ -56,8 +56,7 @@
   (let [bridge-name (:name bridge-config)]
     (actions/exec-checked-script
      "Delete and recreate bridge"
-     (ovs-vsctl -- --if-exists del-br ~bridge-name)
-     (ovs-vsctl add-br ~bridge-name))))
+     (ovs-vsctl -- --may-exist add-br ~bridge-name))))
 
 (defplan connect-host-interfaces
   "Connect host interfaces to OVS bridge"
