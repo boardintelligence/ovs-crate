@@ -67,8 +67,7 @@
     (doseq [iface interfaces]
       (actions/exec-checked-script
        "Attch host interface to bridge"
-       (ovs-vsctl -- --if-exists del-port ~bridge-name ~iface)
-       (ovs-vsctl add-port ~bridge-name ~iface -- set interface priv0 type=internal)))))
+       (ovs-vsctl -- --may-exist add-port ~bridge-name ~iface -- set interface ~iface type=internal)))))
 
 (defplan add-gre-port
   "Add a GRE port for a given bridge to a given remote ip."
