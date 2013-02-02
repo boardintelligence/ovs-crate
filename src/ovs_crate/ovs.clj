@@ -135,7 +135,8 @@
 (defplan setup-ovs
   "Install packages for OVS and configure networking."
   []
-  (install-dpkg-settings)
+  ;; NOTE: only needed when forcefully rerunning install and not necessarily a good default
+  ;;(install-dpkg-settings)
   (install-packages)
   (install-failsafe-conf)
   (remove-ebtables)
