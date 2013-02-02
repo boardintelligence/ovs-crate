@@ -22,7 +22,13 @@ The crate provides a server-spec **ovs-crate.specs/ovs-server** for which the **
 phase does the following:
 * Installs the required packages
 * Sets up any number of OVS bridges as specified by config in the lift :environment
-* Optionally makes the server a NAT/forwarder for various OVS bridges
+
+**NOTE: I have not found a way to make GRE+IPSec work after :configure without rebooting the server.
+Please do this either via the phase :reboot provided in the server spec, or manually. It is only
+needed the first time OVS is installed so I don't want to automatially do this. I'm guessing it has
+something to do with the OVS dkms kernel module but form the looks of it it's loaded before a reboot
+so it may be a matter of being loaded at the wrong time. If you know how to avoid this reboot - please
+let me know!**
 
 Apart from the **:configure** phase there is one more function (and phase) that can be used
 for administrating OVS. This is **ovs-crate.api/recreate-all-gre-connections** which is

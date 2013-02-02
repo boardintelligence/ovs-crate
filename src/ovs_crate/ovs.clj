@@ -143,6 +143,14 @@
   (install-etc-network-interfaces)
   (create-bridges))
 
+(defplan reboot
+  "Reboot server - needed since can't work out how to get IPSec+GRE to work without reboot"
+  []
+  (actions/exec-checked-script
+   "Reboot via an at job"
+   (pipe (echo "reboot")
+         (at -M "now + 1 minutes"))))
+
 (defplan recreate-all-gre-connections
   "Utility function to update all GRE connections on all bridges for a given host."
   []

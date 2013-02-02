@@ -9,4 +9,5 @@
   (api/server-spec
    :phases
    {:configure (api/plan-fn (ovs/setup-ovs))
+    :reboot (api/plan-fn (ovs/reboot))
     :recreate-all-gre-connections (api/plan-fn (ovs/recreate-all-gre-connections))}))
