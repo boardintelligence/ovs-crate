@@ -13,7 +13,8 @@
   []
   (actions/remote-file "/etc/apt/apt.conf.d/local"
                        :local-file (utils/resource-path "ovs/dpkg-options")
-                       :literal true))
+                       :literal true
+                       :no-versioning true))
 
 (defplan install-packages
   "Install all OVS packages."
