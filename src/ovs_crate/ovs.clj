@@ -37,7 +37,7 @@
   []
   (actions/exec-checked-script
    "Remove ebtables package, not needed"
-   (aptitude --assume-yes purge ebtables)))
+   ("aptitude --assume-yes purge ebtables")))
 
 (defplan install-etc-network-interfaces
   "Install our custom /etc/network/interfaces."
@@ -49,7 +49,7 @@
                          :literal true)
     (actions/exec-checked-script
      "Restart networking"
-     (service networking restart))))
+     ("service networking restart"))))
 
 (defplan create-bridge
   "Create a single OVS bridge"
@@ -57,7 +57,7 @@
   (let [bridge-name (:name bridge-config)]
     (actions/exec-checked-script
      "Delete and recreate bridge"
-     (ovs-vsctl -- --may-exist add-br ~bridge-name))))
+     ("ovs-vsctl -- --may-exist add-br" ~bridge-name))))
 
 (defplan connect-host-interfaces
   "Connect host interfaces to OVS bridge"
@@ -67,7 +67,7 @@
     (doseq [iface interfaces]
       (actions/exec-checked-script
        "Attch host interface to bridge"
-       (ovs-vsctl -- --may-exist add-port ~bridge-name ~iface -- set interface ~iface type=internal)))))
+       ("ovs-vsctl -- --may-exist add-port" ~bridge-name ~iface "-- set interface" ~iface "type=internal")))))
 
 (defplan add-gre-port
   "Add a GRE port for a given bridge to a given remote ip."
@@ -78,9 +78,9 @@
         options (format "options:remote_ip=%s options:psk=\"%s\"" remote-ip psk)]
     (actions/exec-checked-script
      "Add GRE port"
-     (ovs-vsctl -- --if-exists del-port ~bridge-name ~port-name)
-     (ovs-vsctl add-port ~bridge-name ~port-name
-                -- set interface ~port-name type=ipsec_gre ~options))))
+     ("ovs-vsctl -- --if-exists del-port" ~bridge-name ~port-name)
+     ("ovs-vsctl add-port" ~bridge-name ~port-name
+                "-- set interface" ~port-name "type=ipsec_gre" ~options))))
 
 (defplan create-gre-connections
   "Create all GRE connections for a given bridge"
@@ -89,8 +89,8 @@
         gre-connections (:gre-connections bridge-config)]
     (actions/exec-checked-script
      "Delete all GRE connections"
-     (doseq [port @(ovs-vsctl list-ports ~bridge-name | grep gre)]
-       (ovs-vsctl del-port ~bridge-name @port)))
+     (doseq [port @("ovs-vsctl list-ports" ~bridge-name "| grep gre")]
+       ("ovs-vsctl del-port" ~bridge-name @port)))
     (doseq [gre-vec (map vector (iterate inc 0) gre-connections)]
       (add-gre-port bridge-name gre-vec))))
 
@@ -99,9 +99,9 @@
   []
   (actions/exec-checked-script
    "Ensure IP forwarding is on"
-   (echo "1 > /proc/sys/net/ipv4/ip_forward")
-   (if (= @(grep "^net.ipv4.ip_forward=1" "/etc/sysctl.conf") "")
-     (echo "\"net.ipv4.ip_forward=1\" >> /etc/sysctl.conf"))))
+   ("echo 1 > /proc/sys/net/ipv4/ip_forward")
+   (if (= @("grep" "^net.ipv4.ip_forward=1" "/etc/sysctl.conf") "")
+     ("echo" "\"net.ipv4.ip_forward=1\" >> /etc/sysctl.conf"))))
 
 (defplan setup-forwarding
   "Setup host to forward traffic from a given bridge and associated network."
@@ -113,9 +113,9 @@
       (actions/exec-checked-script
        "Add iptable rules for forwarding"
        ;; TODO: We need to check if rules already exist before adding them!
-       (iptables -t nat -A POSTROUTING -o ~via -j MASQUERADE)
-       (iptables -I INPUT 1 -i ~from -j ACCEPT)
-       (iptables -A FORWARD -i ~from -s ~source -j ACCEPT)))))
+       ("iptables -t nat -A POSTROUTING -o" ~via "-j MASQUERADE")
+       ("iptables -I INPUT 1 -i" ~from "-j ACCEPT")
+       ("iptables -A FORWARD -i" ~from "-s" ~source "-j ACCEPT")))))
 
 (defplan setup-bridge
   "Perform all server side setup for a given OVS bridge."
@@ -149,8 +149,8 @@
   []
   (actions/exec-checked-script
    "Reboot via an at job"
-   (pipe (echo "reboot")
-         (at -M "now + 1 minutes"))))
+   (pipe ("echo reboot")
+         ("at -M now + 1 minutes"))))
 
 (defplan recreate-all-gre-connections
   "Utility function to update all GRE connections on all bridges for a given host."
