@@ -15,10 +15,16 @@
 
 (defn- dhcp-hosts-content
   [hosts-config static-entries]
-  (let [non-static (reduce str "" (map (fn [[host config]] (format "%s,%s,%s,infinite\n"
-                                                                  (:mac config)
-                                                                  (or (:private-ip config) (:ip config))
-                                                                  (or (:private-hostname config) host)))
+  (let [non-static (reduce str "" (map (fn [[host config]] (if (:dnsmasq-group config)
+                                                            (format "net:%s,%s,%s,%s,infinite\n"
+                                                                    (:dnsmasq-group config)
+                                                                    (:mac config)
+                                                                    (or (:private-ip config) (:ip config))
+                                                                    (or (:private-hostname config) host))
+                                                            (format "%s,%s,%s,infinite\n"
+                                                                    (:mac config)
+                                                                    (or (:private-ip config) (:ip config))
+                                                                    (or (:private-hostname config) host))))
                                        hosts-config))]
     ;; add the static entries
     (reduce str non-static (map #(format "%s,%s,%s,infinite\n"
@@ -51,6 +57,7 @@
 
     (actions/remote-file (opts-file service-name)
                          :local-file local-opts-file
+                         :mode "0644"
                          :literal true)
     (actions/remote-file (hosts-file service-name)
                          :content hosts-file-content
