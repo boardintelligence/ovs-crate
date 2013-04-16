@@ -1,0 +1,6 @@
+respawn
+
+start on (local-filesystems and net-device-up IFACE=~{interface})
+stop on [!12345]
+
+exec /usr/sbin/dnsmasq -k  --interface=~{interface} --bind-interfaces --dhcp-range=~{interface},~{range-start},static,24h --domain=~{domain} --user=nobody --pid-file=~{pid-file} --bogus-priv --conf-file --dhcp-hostsfile=~{hosts-file} --dhcp-optsfile=~{opts-file}

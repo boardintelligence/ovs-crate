@@ -1,0 +1,61 @@
+# Configuration file created by Patrik Sundberg
+#
+# Do not let OpenVSwitch update this automatically,
+# make sure openvswitch-ipsec is not running on this host!
+
+path pre_shared_key "/etc/racoon/psk.txt";
+path certificate "/etc/racoon/certs";
+
+log info;
+#log debug;
+
+timer {
+	natt_keepalive 45 sec;
+}
+
+remote 1.2.3.4 {
+        exchange_mode main;
+        nat_traversal on;
+        proposal {
+                encryption_algorithm aes;
+                hash_algorithm sha1;
+                authentication_method pre_shared_key;
+                dh_group 2;
+        }
+}
+
+remote anonymous {
+        exchange_mode main,aggressive;
+	lifetime time 28800 second;
+        passive on;
+        proposal_check strict;
+        generate_policy unique;
+        nat_traversal on;
+
+        proposal {
+                 encryption_algorithm aes256;
+                 hash_algorithm sha1;
+                 authentication_method xauth_psk_server;
+                 dh_group modp1024;
+        }
+}
+
+mode_cfg {
+        conf_source local;
+        auth_source pam;
+        pool_size 253;
+        save_passwd on;
+        network4 10.0.0.2;
+        netmask4 255.255.255.0;
+        dns4 8.8.8.8;
+        default_domain "thedomainl.com";
+        split_network include 10.0.0.0/16;
+        split_dns "thedomain.com";
+}
+
+sainfo anonymous {
+        #pfs_group 2;
+        encryption_algorithm aes256;
+        authentication_algorithm hmac_sha1, hmac_md5;
+        compression_algorithm deflate;
+}
