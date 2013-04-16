@@ -1,7 +1,7 @@
 (ns ovs-crate.specs
   "Server and group specs for working with OVS"
   (:require [ovs-crate.ovs :as ovs]
-            [ovs-create.racoon :as racoon]
+            [ovs-crate.racoon :as racoon]
             [ovs-crate.dnsmasq :as dnsmasq]
             [pallet.api :as api]))
 
