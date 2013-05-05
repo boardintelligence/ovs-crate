@@ -14,7 +14,7 @@
   "Remove ovs-ipsec and install our own custom racoon setup"
   []
   (let [hostname (crate/target-name)
-        racoon-config (env/get-environment [:host-config hostname :racoon-config] nil)]
+        racoon-config (env/get-environment [:host-config hostname :racoon] nil)]
     (when-not (nil? racoon-config)
       (actions/package "ipsec-tools" :action :install)
       (actions/package "racoon" :action :install)
